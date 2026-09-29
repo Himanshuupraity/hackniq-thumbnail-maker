@@ -28,7 +28,7 @@ input[type=range]{width:100%}
 .sw label{margin:0}
 input[type=color]{width:32px;height:26px;border:1px solid #33427f;border-radius:6px;background:none;padding:0;cursor:pointer}
 .seg{display:flex;background:#0b1233;border:1px solid #33427f;border-radius:10px;padding:3px;margin-top:4px}
-.seg label{flex:1;margin:0;text-align:center;padding:7px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;text-transform:none;letter-spacing:0;color:#cfd6ff}
+.seg label{flex:1;margin:0;text-align:center;padding:7px 4px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;text-transform:none;letter-spacing:0;color:#cfd6ff}
 .seg input{display:none}
 .seg label:has(input:checked){background:#fcc72c;color:#111a3a}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
@@ -40,6 +40,7 @@ button.ghost{background:#26336e;color:#dfe5ff;padding:8px;font-size:12px;font-we
 button.danger{background:#5a1f2a;color:#ffd6dc}
 .btns{display:flex;gap:8px;margin-top:12px}
 .msg{font-size:11px;color:#7ee2a8;min-height:15px;margin-top:6px}
+.sep{border-top:1px dashed #2a3772;margin:14px 0 0;padding-top:4px}
 .hint{font-size:11px;color:#8d98cc;margin-top:8px;max-width:380px}
 .pv{position:sticky;top:24px;width:380px;max-width:100%}
 .bar{display:flex;gap:8px;margin-bottom:10px}
@@ -143,6 +144,21 @@ ORGANISATION NAME
   </div>
   <label>Saturation</label><input type="range" id="sat" min="0" max="200" value="100">
   <button class="ghost" id="adjReset" style="margin-top:10px">Reset photo adjustments</button>
+
+  <div class="sep">
+   <label>Background behind you</label>
+   <div class="seg">
+    <label><input type="radio" name="bg" value="off" checked>Off</label>
+    <label><input type="radio" name="bg" value="blur">Blur</label>
+    <label><input type="radio" name="bg" value="color">Colour</label>
+    <label><input type="radio" name="bg" value="image">Image</label>
+   </div>
+   <div data-bg="blur" style="display:none"><label>Blur strength</label><input type="range" id="bgBlur" min="2" max="40" value="14"></div>
+   <div data-bg="color image" style="display:none"><div class="sw"><label><input type="color" id="bgCol" value="#1b2a66">Background colour</label></div></div>
+   <div data-bg="image" style="display:none"><label>Background image</label><input type="file" id="bgImgF" accept="image/*"></div>
+   <div data-bg="blur color image" style="display:none"><label>Edge softness</label><input type="range" id="bgSoft" min="0" max="8" step="0.5" value="2"></div>
+   <div class="msg" id="bgMsg"></div>
+  </div>
  </div></details>
 
  <details open><summary><span class="n">6</span>Readability gradient</summary><div class="body">
@@ -171,6 +187,11 @@ ORGANISATION NAME
    <label>Line 2</label><input type="text" id="roleB" value="RECRUITMENT">
   </div>
   <label>Size</label><input type="range" id="hSize" min="0.6" max="1.3" step="0.01" value="1">
+  <div class="row">
+   <div><label>Move ↔</label><input type="range" id="hX" min="-400" max="400" value="0"></div>
+   <div><label>Move ↕</label><input type="range" id="hY" min="-700" max="300" value="0"></div>
+  </div>
+  <button class="ghost" style="margin-top:8px" onclick="['hX','hY'].forEach(i=>$(i).value=0);draw()">Reset position</button>
   <label class="ck"><input type="checkbox" id="caps" checked> ALL CAPS</label>
   <div class="sw">
    <label><input type="color" id="topTx" value="#ffffff">Label / top line</label>
@@ -182,6 +203,11 @@ ORGANISATION NAME
  <details open><summary><span class="n">8</span>Pill 1</summary><div class="body">
   <label>Text (blank to hide)</label><input type="text" id="p1" value="FRESHERS CAN APPLY">
   <div class="chips" data-target="p1"></div>
+  <div class="row">
+   <div><label>Move ↔</label><input type="range" id="p1X" min="-400" max="400" value="0"></div>
+   <div><label>Move ↕</label><input type="range" id="p1Y" min="-600" max="200" value="0"></div>
+  </div>
+  <button class="ghost" style="margin-top:8px" onclick="['p1X','p1Y'].forEach(i=>$(i).value=0);draw()">Reset position</button>
   <div class="sw">
    <label><input type="color" id="p1Bg" value="#ffffff">Background</label>
    <label><input type="color" id="p1Bd" value="#fbc52d">Border</label>
@@ -194,6 +220,11 @@ ORGANISATION NAME
   <div class="chips" data-target="p2"></div>
   <label>Last date inserter</label>
   <div class="row"><div style="flex:2"><input type="date" id="ldate"></div><div><button class="ghost" id="ldIns">Insert</button></div></div>
+  <div class="row">
+   <div><label>Move ↔</label><input type="range" id="p2X" min="-400" max="400" value="0"></div>
+   <div><label>Move ↕</label><input type="range" id="p2Y" min="-600" max="200" value="0"></div>
+  </div>
+  <button class="ghost" style="margin-top:8px" onclick="['p2X','p2Y'].forEach(i=>$(i).value=0);draw()">Reset position</button>
   <div class="sw">
    <label><input type="color" id="p2Bg" value="#d32f2f">Background</label>
    <label><input type="color" id="p2Tx" value="#ffffff">Text</label>
@@ -203,10 +234,23 @@ ORGANISATION NAME
  <details open><summary><span class="n">10</span>Caption</summary><div class="body">
   <label>Text (blank to hide)</label><input type="text" id="cap" value="Eligibility & last date in this reel">
   <div class="chips" data-target="cap" data-opts="Eligibility & last date in this reel|Eligibility & posts in this reel|Full details in this reel|Apply link in bio"></div>
+  <div class="row">
+   <div><label>Move ↔</label><input type="range" id="capX" min="-400" max="400" value="0"></div>
+   <div><label>Move ↕</label><input type="range" id="capY" min="-600" max="60" value="0"></div>
+  </div>
+  <button class="ghost" style="margin-top:8px" onclick="['capX','capY'].forEach(i=>$(i).value=0);draw()">Reset position</button>
   <div class="sw">
    <label><input type="color" id="capTx" value="#ffffff">Text</label>
    <label><input type="color" id="capBd" value="#0a0f28">Outline</label>
   </div>
+ </div></details>
+
+ <details open><summary><span class="n">⇕</span>Move all bottom text (7–10)</summary><div class="body">
+  <div class="row">
+   <div><label>Move ↔</label><input type="range" id="allX" min="-400" max="400" value="0"></div>
+   <div><label>Move ↕</label><input type="range" id="allY" min="-700" max="200" value="0"></div>
+  </div>
+  <button class="ghost" style="margin-top:8px" onclick="['allX','allY'].forEach(i=>$(i).value=0);draw()">Reset position</button>
  </div></details>
 
  <div class="btns">
@@ -239,7 +283,7 @@ if(!window.storage){window.storage={
 }}
 
 const $=id=>document.getElementById(id),c=$('c'),ctx=c.getContext('2d'),oc=$('o'),octx=oc.getContext('2d'),W=1080,H=1920,TOP=504;
-let photo=null,logo=null;
+let photo=null,logo=null,bgImg=null;
 const col=id=>$(id).value,num=id=>+$(id).value;
 const PILLS='FRESHERS CAN APPLY|NO EXAM / DIRECT JOINING|PERMANENT POST|ANY DEGREE / 10TH / 12TH|NO INTERVIEW|ALL INDIA CAN APPLY';
 
@@ -260,15 +304,62 @@ function lcUI(){document.querySelectorAll('[data-lc]').forEach(d=>d.style.displa
 document.querySelectorAll('input[name=lc]').forEach(r=>r.addEventListener('change',()=>{lcUI();draw()}));
 $('orgTxt').addEventListener('input',draw);
 
+// ---------- background blur / removal (MediaPipe selfie segmentation, runs in the browser) ----------
+const TV='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+const SEG_MODEL='https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite';
+let segmenter=null,segLoading=null,mask=null,cut=null,cutSoft=-1,segJob=0;
+function bgMode(){return document.querySelector('input[name=bg]:checked').value}
+function bgUI(){const m=bgMode();document.querySelectorAll('[data-bg]').forEach(d=>d.style.display=d.dataset.bg.split(' ').includes(m)?'':'none')}
+document.querySelectorAll('input[name=bg]').forEach(r=>r.addEventListener('change',()=>{bgUI();segment();draw()}));
+$('bgImgF').onchange=e=>e.target.files[0]&&load(e.target.files[0],i=>{bgImg=i;draw()});
+async function getSegmenter(){
+ if(segmenter)return segmenter;
+ if(!segLoading)segLoading=(async()=>{
+  const {FilesetResolver,ImageSegmenter}=await import(TV+'/vision_bundle.mjs');
+  const fs=await FilesetResolver.forVisionTasks(TV+'/wasm');
+  const opts=d=>({baseOptions:{modelAssetPath:SEG_MODEL,delegate:d},runningMode:'IMAGE',outputCategoryMask:false,outputConfidenceMasks:true});
+  try{segmenter=await ImageSegmenter.createFromOptions(fs,opts('GPU'))}catch(e){segmenter=await ImageSegmenter.createFromOptions(fs,opts('CPU'))}
+  return segmenter})().catch(e=>{segLoading=null;throw e});
+ return segLoading;
+}
+async function segment(){
+ if(!photo||bgMode()==='off'||mask)return;
+ const job=++segJob,src=photo;
+ $('bgMsg').style.color='#7ee2a8';$('bgMsg').textContent='Detecting you in the photo… (first time takes a few seconds)';
+ try{
+  const s=await getSegmenter();
+  if(job!==segJob||src!==photo)return;
+  const k=Math.min(1,1024/Math.max(src.width,src.height)),sc=document.createElement('canvas');
+  sc.width=Math.round(src.width*k);sc.height=Math.round(src.height*k);sc.getContext('2d').drawImage(src,0,0,sc.width,sc.height);
+  let data=null,mw=0,mh=0;
+  s.segment(sc,res=>{const m=res.confidenceMasks[0];mw=m.width;mh=m.height;data=m.getAsFloat32Array().slice()});
+  if(!data)throw new Error('No mask returned');
+  // make sure the mask means "person" (person is usually in the centre, background in the top corners)
+  const avg=(x0,y0,x1,y1)=>{let t=0,n=0;for(let y=Math.floor(y0);y<y1;y+=4)for(let x=Math.floor(x0);x<x1;x+=4){t+=data[y*mw+x];n++}return t/Math.max(n,1)};
+  const centre=avg(mw*.4,mh*.35,mw*.6,mh*.6),corners=(avg(0,0,mw*.12,mh*.12)+avg(mw*.88,0,mw,mh*.12))/2,inv=centre<corners;
+  const mc=document.createElement('canvas');mc.width=mw;mc.height=mh;const mx=mc.getContext('2d'),id=mx.createImageData(mw,mh);
+  for(let i=0;i<data.length;i++)id.data[i*4+3]=Math.round((inv?1-data[i]:data[i])*255);
+  mx.putImageData(id,0,0);
+  if(job!==segJob||src!==photo)return;
+  mask=mc;cut=null;$('bgMsg').textContent='';draw();
+ }catch(e){console.error(e);$('bgMsg').style.color='#ffb3bd';$('bgMsg').textContent='Could not load the background tool. It needs internet the first time — check your connection and try again.'}
+}
+function getCut(){
+ if(!mask||!photo)return null;const soft=num('bgSoft');if(cut&&cutSoft===soft)return cut;
+ const cv=document.createElement('canvas');cv.width=photo.width;cv.height=photo.height;const x=cv.getContext('2d');
+ x.drawImage(photo,0,0);x.globalCompositeOperation='destination-in';x.filter=soft>0?`blur(${soft*photo.width/1000}px)`:'none';
+ x.drawImage(mask,0,0,cv.width,cv.height);cut=cv;cutSoft=soft;return cut}
+function setPhoto(p){photo=p;mask=null;cut=null;segJob++;$('bgMsg').textContent='';if(p)segment();draw()}
+
 // general
 function rgba(hex,a){const n=parseInt(hex.slice(1),16);return`rgba(${n>>16},${n>>8&255},${n&255},${a})`}
 function load(f,cb){const r=new FileReader();r.onload=e=>{const i=new Image();i.onload=()=>cb(i);i.src=e.target.result};r.readAsDataURL(f)}
-$('photo').onchange=e=>e.target.files[0]&&load(e.target.files[0],i=>{photo=i;draw()});
+$('photo').onchange=e=>e.target.files[0]&&load(e.target.files[0],setPhoto);
 $('logo').onchange=e=>e.target.files[0]&&load(e.target.files[0],i=>{logo=i;draw()});
 document.querySelectorAll('input:not([type=file]):not(#vtime),select:not(#ov)').forEach(el=>el.addEventListener('input',draw));
 $('ov').addEventListener('input',drawOv);
 $('adjReset').onclick=()=>{['bri','con'].forEach(i=>$(i).value=100);$('sat').value=100;$('flip').checked=false;draw()};
-$('photoDel').onclick=()=>{photo=null;$('photo').value='';$('vid').value='';vid.pause();vid.removeAttribute('src');vid.load();$('vidBox').style.display='none';$('vt').textContent='0.0s';$('vidMsg').textContent='';draw()};
+$('photoDel').onclick=()=>{$('photo').value='';$('vid').value='';vid.pause();vid.removeAttribute('src');vid.load();$('vidBox').style.display='none';$('vt').textContent='0.0s';$('vidMsg').textContent='';setPhoto(null)};
 $('logoDel').onclick=()=>{logo=null;$('logo').value='';$('libSel').value='';draw()};
 $('ldIns').onclick=()=>{const v=$('ldate').value;if(!v)return;const d=new Date(v+'T00:00');$('p2').value='LAST DATE : '+d.getDate()+' '+d.toLocaleString('en',{month:'long'}).toUpperCase();draw()};
 function resetColors(all){document.querySelectorAll('input[type=color]').forEach(i=>i.value=i.defaultValue);
@@ -289,7 +380,7 @@ function grab(){
  if(!vid.getAttribute('src'))return;
  if(!vid.videoWidth){$('vidMsg').textContent='Frame not ready yet — move the slider a little or press play/pause.';return}
  const cv=document.createElement('canvas');cv.width=vid.videoWidth;cv.height=vid.videoHeight;cv.getContext('2d').drawImage(vid,0,0);
- photo=cv;$('vt').textContent=vid.currentTime.toFixed(1)+'s';$('vtime').value=vid.currentTime;$('vidMsg').textContent='';draw()}
+ $('vt').textContent=vid.currentTime.toFixed(1)+'s';$('vtime').value=vid.currentTime;$('vidMsg').textContent='';setPhoto(cv)}
 $('vtime').addEventListener('input',()=>{vid.pause();vid.currentTime=num('vtime')});
 $('vidGrab').onclick=grab;
 
@@ -348,13 +439,22 @@ function pill(t,cy,h,fill,stroke,color,font,size,sp,pad){
 
 function draw(){
  ctx.clearRect(0,0,W,H);ctx.letterSpacing='0px';ctx.filter='none';
- // photo
- ctx.save();ctx.beginPath();ctx.rect(0,TOP,W,H-TOP);ctx.clip();ctx.fillStyle='#2a2a30';ctx.fillRect(0,TOP,W,H-TOP);
- if(photo){const ah=H-TOP,s=Math.max(W/photo.width,ah/photo.height)*num('zoom'),dw=photo.width*s,dh=photo.height*s;
+ // photo (with optional background blur / colour / image)
+ const ah=H-TOP;
+ ctx.save();ctx.beginPath();ctx.rect(0,TOP,W,ah);ctx.clip();ctx.fillStyle='#2a2a30';ctx.fillRect(0,TOP,W,ah);
+ if(photo){const s=Math.max(W/photo.width,ah/photo.height)*num('zoom'),dw=photo.width*s,dh=photo.height*s;
   let x=(W-dw)/2-num('offx')*(dw-W)/2;const y=TOP+(ah-dh)/2-num('offy')*(dh-ah)/2;
-  ctx.filter=`brightness(${num('bri')}%) contrast(${num('con')}%) saturate(${num('sat')}%)`;
+  const adj=`brightness(${num('bri')}%) contrast(${num('con')}%) saturate(${num('sat')}%)`;
+  const bm=bgMode(),ct=bm!=='off'?getCut():null;
+  if(ct&&(bm==='color'||(bm==='image'&&!bgImg))){ctx.fillStyle=col('bgCol');ctx.fillRect(0,TOP,W,ah)}
+  else if(ct&&bm==='image'){const bs=Math.max(W/bgImg.width,ah/bgImg.height),bw=bgImg.width*bs,bh=bgImg.height*bs;ctx.drawImage(bgImg,(W-bw)/2,TOP+(ah-bh)/2,bw,bh)}
+  ctx.save();
   if($('flip').checked){ctx.translate(W,0);ctx.scale(-1,1);x=W-x-dw}
-  ctx.drawImage(photo,x,y,dw,dh);ctx.filter='none'}
+  if(!ct){ctx.filter=adj;ctx.drawImage(photo,x,y,dw,dh)}
+  else{
+   if(bm==='blur'){const b=num('bgBlur');ctx.filter=adj+` blur(${b}px)`;ctx.drawImage(photo,x-b*2,y-b*2,dw+b*4,dh+b*4)}
+   ctx.filter=adj;ctx.drawImage(ct,x,y,dw,dh)}
+  ctx.restore();ctx.filter='none'}
  else ph('Click or drop your photo',170,780,740,200);
  ctx.restore();
  // readability gradient
@@ -390,16 +490,19 @@ function draw(){
  if(tag.trim())pill(tag,420,94,col('tagBg'),null,col('tagTx'),"800 #px Poppins,sans-serif",50,11,55);
  const dt=num('divThick');if(dt>0){ctx.fillStyle=col('divider');ctx.fillRect(0,TOP-5-dt/2,W,dt)}
 
- // bottom stack, laid out from the bottom up
+ // bottom stack, laid out from the bottom up (whole group can be moved with allX / allY)
  const caps=$('caps').checked,U=t=>caps?t.toUpperCase():t,sz=num('hSize');
  let y=1850;const GAP=22;
+ ctx.save();ctx.translate(num('allX'),num('allY'));
  const cap=$('cap').value;
- if(cap.trim()){fit(cap,"600 #px Poppins,sans-serif",42,W-140);ctx.save();ctx.shadowColor='rgba(0,0,0,.9)';ctx.shadowBlur=12;ctx.lineWidth=6;ctx.strokeStyle=rgba(col('capBd'),.85);
-  ctx.textAlign='center';ctx.textBaseline='middle';ctx.strokeText(cap,W/2,y-28);ctx.fillStyle=col('capTx');ctx.fillText(cap,W/2,y-28);ctx.restore();y-=56+GAP-4}
+ if(cap.trim()){ctx.save();ctx.translate(num('capX'),num('capY'));
+  fit(cap,"600 #px Poppins,sans-serif",42,W-140);ctx.save();ctx.shadowColor='rgba(0,0,0,.9)';ctx.shadowBlur=12;ctx.lineWidth=6;ctx.strokeStyle=rgba(col('capBd'),.85);
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.strokeText(cap,W/2,y-28);ctx.fillStyle=col('capTx');ctx.fillText(cap,W/2,y-28);ctx.restore();
+  ctx.restore();y-=56+GAP-4}
  const p2=$('p2').value.toUpperCase();
- if(p2.trim()){pill(p2,y-49,98,col('p2Bg'),null,col('p2Tx'),"800 #px Poppins,sans-serif",58,0,48);y-=98+GAP}
+ if(p2.trim()){ctx.save();ctx.translate(num('p2X'),num('p2Y'));pill(p2,y-49,98,col('p2Bg'),null,col('p2Tx'),"800 #px Poppins,sans-serif",58,0,48);ctx.restore();y-=98+GAP}
  const p1=$('p1').value.toUpperCase();
- if(p1.trim()){pill(p1,y-49,98,col('p1Bg'),col('p1Bd'),col('p1Tx'),"800 #px Poppins,sans-serif",58,0,48);y-=98+GAP}
+ if(p1.trim()){ctx.save();ctx.translate(num('p1X'),num('p1Y'));pill(p1,y-49,98,col('p1Bg'),col('p1Bd'),col('p1Tx'),"800 #px Poppins,sans-serif",58,0,48);ctx.restore();y-=98+GAP}
  y-=4;
  function big(t,size,fill,lw){if(!t.trim())return;size=fit(t,"#px Anton,Impact,sans-serif",size,W-110);ctx.letterSpacing='0px';
   ctx.font=size+"px Anton,Impact,sans-serif";ctx.textAlign='center';ctx.textBaseline='alphabetic';
@@ -412,9 +515,12 @@ function draw(){
   ctx.save();ctx.shadowColor='rgba(0,0,0,.8)';ctx.shadowBlur=14;ctx.fillStyle=col('topTx');ctx.fillText(t,W/2+6,base);ctx.restore();ctx.letterSpacing='0px';
   y-=m.actualBoundingBoxAscent+m.actualBoundingBoxDescent+20}
  const mode=$('mode').value;
+ ctx.save();ctx.translate(num('hX'),num('hY'));
  if(mode==='salary'){big(U($('salBig').value),215*sz,col('headTx'),24);label(U($('salEye').value))}
  else if(mode==='hook'){big(U($('hookB').value),205*sz,col('headTx'),24);big(U($('hookA').value),115*sz,col('topTx'),16)}
  else{big(U($('roleB').value),165*sz,col('headTx'),22);big(U($('roleA').value),165*sz,col('headTx'),22)}
+ ctx.restore();
+ ctx.restore();
 }
 
 // preview-only overlay
@@ -436,7 +542,7 @@ c.addEventListener('click',e=>{const z=zone(e);if(!z)return;
  if(z==='logo'&&lcMode()==='text'){$('orgTxt').focus();return}
  $(z).value='';$(z).click()});
 c.addEventListener('dragover',e=>{if(zone(e))e.preventDefault()});
-c.addEventListener('drop',e=>{const z=zone(e),f=e.dataTransfer.files[0];if(!z||!f)return;e.preventDefault();load(f,i=>{z==='logo'?logo=i:photo=i;draw()})});
+c.addEventListener('drop',e=>{const z=zone(e),f=e.dataTransfer.files[0];if(!z||!f)return;e.preventDefault();load(f,i=>{if(z==='logo'){logo=i;draw()}else setPhoto(i)})});
 
 // download
 const modal=document.createElement('div');
@@ -452,7 +558,7 @@ modal.onclick=e=>{if(e.target===modal)modal.style.display='none'};
 $('dl').onclick=()=>{draw();const url=c.toDataURL('image/png');$('outImg').src=url;$('outLink').href=url;modal.style.display='flex';
  try{c.toBlob(b=>{if(!b)return;const u=URL.createObjectURL(b);$('outLink').href=u;const a=document.createElement('a');a.href=u;a.download='reel-thumbnail.png';document.body.appendChild(a);a.click();a.remove()},'image/png')}catch(err){}};
 
-modeUI();lcUI();listTpl();listLib();draw();drawOv();
+modeUI();lcUI();bgUI();listTpl();listLib();draw();drawOv();
 document.fonts&&document.fonts.ready.then(draw);setTimeout(draw,800);
 </script>
 </body></html>
